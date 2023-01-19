@@ -17,7 +17,7 @@ class MainActivity : AppCompatActivity() {
 		super.onCreate(savedInstanceState)
 		setContentView(R.layout.activity_main)
 		setUpRecyclerView()
-		viewModel = ViewModelProvider(this)[MainViewModel::class.java]
+		viewModel = ViewModelProvider(this).get(MainViewModel::class.java)
 		viewModel.shopList.observe(this) {
 			shopListAdapter.shopList = it
 		}

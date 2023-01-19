@@ -1,5 +1,6 @@
 package com.example.shoppinglist.Presentation
 
+import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -11,6 +12,10 @@ import com.example.shoppinglist.R
 class ShopListAdapter : RecyclerView.Adapter<ShopListAdapter.ShopListViewHolder>() {
 
 	var shopList = listOf<ShopItem>()
+		set(value) {
+			field = value
+			notifyDataSetChanged()
+		}
 
 	var onShopItemLongClickListener: ((ShopItem) -> Unit)? = null
 	var onShopItemClickListener: ((ShopItem) -> Unit)? = null
