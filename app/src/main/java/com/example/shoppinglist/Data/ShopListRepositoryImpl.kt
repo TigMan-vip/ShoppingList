@@ -9,7 +9,7 @@ import kotlin.random.Random
 object ShopListRepositoryImpl:ShopListRepository {
 
 	private val shopListLiveData = MutableLiveData<List<ShopItem>>()
-	private val shopList = mutableListOf<ShopItem>()
+	private val shopList = sortedSetOf<ShopItem>({o1, o2 -> o1.id.compareTo(o2.id)})
 
 	private var autoIncrementId = 0
 
@@ -47,7 +47,7 @@ object ShopListRepositoryImpl:ShopListRepository {
 		return shopListLiveData
 	}
 
-	fun updateShopList() {
+	private fun updateShopList() {
 		shopListLiveData.value = shopList.toList()
 	}
 }
