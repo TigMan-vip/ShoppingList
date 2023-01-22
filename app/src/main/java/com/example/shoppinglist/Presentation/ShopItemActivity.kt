@@ -3,6 +3,8 @@ package com.example.shoppinglist.Presentation
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
@@ -33,14 +35,6 @@ class ShopItemActivity : AppCompatActivity() {
 			MODE_ADD  -> launchAddMode()
 			MODE_EDIT -> launchEditMode()
 		}
-	}
-
-	private fun launchEditMode() {
-		TODO("Not yet implemented")
-	}
-
-	private fun launchAddMode() {
-		TODO("Not yet implemented")
 	}
 
 	companion object {
@@ -88,5 +82,92 @@ class ShopItemActivity : AppCompatActivity() {
 		tilCount = findViewById(R.id.shop_item_count_input_layout)
 		etName = findViewById(R.id.shop_item_name_edit_text)
 		etCount = findViewById(R.id.shop_item_count_edit_text)
+	}
+
+	private fun launchEditMode() {
+		viewModel.getShopItem(shopItemID)
+		var item = viewModel.shopItem.value
+		etName.setText(item?.name) ?: throw RuntimeException("Нет имени")
+		etCount.setText(item?.count.toString())
+		resetErrorToClickOnCount()
+		resetErrorToClickOnName()
+		buttonSave.setOnClickListener {
+			val name = etName.text.toString()
+			val count = etCount.text.toString()
+			viewModel.editShopItem(name, count)
+
+			viewModel.errorInputNameLiveData.observe(this) {
+				if (it) {
+					tilName.error = "Ошибка ввода"
+				}
+			}
+
+			viewModel.errorInputCountLiveData.observe(this) {
+				if (it) {
+					tilCount.error = "Ошибка ввода"
+				}
+			}
+
+			viewModel.resetErrorInputName()
+			viewModel.resetErrorInputCount()
+
+			viewModel.shouldCloseScreen.observe(this) {
+				finish()
+			}
+		}
+		resetErrorToClickOnName()
+		resetErrorToClickOnCount()
+	}
+
+	private fun launchAddMode() {
+		buttonSave.setOnClickListener {
+			val name = etName.text.toString()
+			val count = etCount.text.toString()
+			viewModel.addShopItem(name, count)
+			viewModel.errorInputNameLiveData.observe(this) {
+				if (it) {
+					tilName.error = "Ошибка ввода"
+				}
+			}
+
+			viewModel.errorInputCountLiveData.observe(this) {
+				if (it) {
+					tilCount.error = "Ошибка ввода"
+				}
+			}
+
+			viewModel.resetErrorInputName()
+			viewModel.resetErrorInputCount()
+
+			viewModel.shouldCloseScreen.observe(this) {
+				finish()
+			}
+		}
+		resetErrorToClickOnName()
+		resetErrorToClickOnCount()
+	}
+
+	private fun resetErrorToClickOnName() {
+		etName.addTextChangedListener(object : TextWatcher {
+			override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
+
+			override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+				tilName.error = null
+			}
+
+			override fun afterTextChanged(p0: Editable?) {}
+		})
+	}
+
+	private fun resetErrorToClickOnCount() {
+		etCount.addTextChangedListener(object : TextWatcher {
+			override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
+
+			override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+				tilCount.error = null
+			}
+
+			override fun afterTextChanged(p0: Editable?) {}
+		})
 	}
 }
