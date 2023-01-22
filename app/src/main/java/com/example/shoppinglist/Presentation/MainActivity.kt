@@ -1,12 +1,12 @@
 package com.example.shoppinglist.Presentation
 
 import android.os.Bundle
-import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.example.shoppinglist.R
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 
 class MainActivity : AppCompatActivity() {
 
@@ -20,6 +20,12 @@ class MainActivity : AppCompatActivity() {
 		viewModel = ViewModelProvider(this)[MainViewModel::class.java]
 		viewModel.shopList.observe(this) {
 			shopListAdapter.submitList(it)
+		}
+
+		val buttonAddItem = findViewById<FloatingActionButton>(R.id.floatingActionButton)
+		buttonAddItem.setOnClickListener {
+			val intent = ShopItemActivity.newIntentAddItem(this)
+			startActivity(intent)
 		}
 	}
 
@@ -42,7 +48,6 @@ class MainActivity : AppCompatActivity() {
 		setupClickListener()
 		setupSwipeListener(rvShopList)
 	}
-
 
 	private fun setupSwipeListener(rvShopList: RecyclerView) {
 		val callback = object : ItemTouchHelper.SimpleCallback(
@@ -68,7 +73,8 @@ class MainActivity : AppCompatActivity() {
 
 	private fun setupClickListener() {
 		shopListAdapter.onShopItemClickListener = {
-
+			val intent = ShopItemActivity.newIntentEditItem(this, it.id)
+			startActivity(intent)
 		}
 	}
 
