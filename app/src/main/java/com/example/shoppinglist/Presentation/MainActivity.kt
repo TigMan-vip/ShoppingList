@@ -68,7 +68,7 @@ class MainActivity : AppCompatActivity() {
 
 	private fun setupClickListener() {
 		shopListAdapter.onShopItemClickListener = {
-			Log.d("MainActivity", it.toString())
+
 		}
 	}
 
