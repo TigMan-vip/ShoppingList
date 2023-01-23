@@ -31,10 +31,9 @@ class ShopItemActivity : AppCompatActivity() {
 		parseIntent()
 		viewModel = ViewModelProvider(this)[ShopItemViewModel::class.java]
 		initView()
-		when (screenMode) {
-			MODE_ADD  -> launchAddMode()
-			MODE_EDIT -> launchEditMode()
-		}
+		addTextChangeListeners()
+		observeViewModel()
+		launchRightMode()
 	}
 
 	companion object {
@@ -59,6 +58,34 @@ class ShopItemActivity : AppCompatActivity() {
 		}
 	}
 
+	private fun addTextChangeListeners() {
+		etName.addTextChangedListener(object : TextWatcher {
+			override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
+
+			override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+				viewModel.resetErrorInputName()
+			}
+
+			override fun afterTextChanged(p0: Editable?) {}
+		})
+		etCount.addTextChangedListener(object : TextWatcher {
+			override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
+
+			override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+				viewModel.resetErrorInputCount()
+			}
+
+			override fun afterTextChanged(p0: Editable?) {}
+		})
+	}
+
+	private fun launchRightMode() {
+		when (screenMode) {
+			MODE_ADD  -> launchAddMode()
+			MODE_EDIT -> launchEditMode()
+		}
+	}
+
 	private fun parseIntent() {
 		if (!intent.hasExtra(EXTRA_SCREEN_MODE)) {
 			throw RuntimeException("Param screen mode is absent")
@@ -76,6 +103,28 @@ class ShopItemActivity : AppCompatActivity() {
 		}
 	}
 
+	private fun observeViewModel() {
+		viewModel.errorInputNameLiveData.observe(this) {
+			val message = if (it) {
+				"Ошибка ввода"
+			} else {
+				null
+			}
+			tilName.error = message
+		}
+		viewModel.errorInputCountLiveData.observe(this) {
+			val message = if (it) {
+				"Ошибка ввода"
+			} else {
+				null
+			}
+			tilCount.error = message
+		}
+		viewModel.shouldCloseScreen.observe(this) {
+			finish()
+		}
+	}
+
 	private fun initView() {
 		buttonSave = findViewById(R.id.btn_save)
 		tilName = findViewById(R.id.shop_item_name_input_layout)
@@ -89,34 +138,11 @@ class ShopItemActivity : AppCompatActivity() {
 		var item = viewModel.shopItem.value
 		etName.setText(item?.name) ?: throw RuntimeException("Нет имени")
 		etCount.setText(item?.count.toString())
-		resetErrorToClickOnCount()
-		resetErrorToClickOnName()
 		buttonSave.setOnClickListener {
 			val name = etName.text.toString()
 			val count = etCount.text.toString()
 			viewModel.editShopItem(name, count)
-
-			viewModel.errorInputNameLiveData.observe(this) {
-				if (it) {
-					tilName.error = "Ошибка ввода"
-				}
-			}
-
-			viewModel.errorInputCountLiveData.observe(this) {
-				if (it) {
-					tilCount.error = "Ошибка ввода"
-				}
-			}
-
-			viewModel.resetErrorInputName()
-			viewModel.resetErrorInputCount()
-
-			viewModel.shouldCloseScreen.observe(this) {
-				finish()
-			}
 		}
-		resetErrorToClickOnName()
-		resetErrorToClickOnCount()
 	}
 
 	private fun launchAddMode() {
@@ -124,50 +150,6 @@ class ShopItemActivity : AppCompatActivity() {
 			val name = etName.text.toString()
 			val count = etCount.text.toString()
 			viewModel.addShopItem(name, count)
-			viewModel.errorInputNameLiveData.observe(this) {
-				if (it) {
-					tilName.error = "Ошибка ввода"
-				}
-			}
-
-			viewModel.errorInputCountLiveData.observe(this) {
-				if (it) {
-					tilCount.error = "Ошибка ввода"
-				}
-			}
-
-			viewModel.resetErrorInputName()
-			viewModel.resetErrorInputCount()
-
-			viewModel.shouldCloseScreen.observe(this) {
-				finish()
-			}
 		}
-		resetErrorToClickOnName()
-		resetErrorToClickOnCount()
-	}
-
-	private fun resetErrorToClickOnName() {
-		etName.addTextChangedListener(object : TextWatcher {
-			override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
-
-			override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-				tilName.error = null
-			}
-
-			override fun afterTextChanged(p0: Editable?) {}
-		})
-	}
-
-	private fun resetErrorToClickOnCount() {
-		etCount.addTextChangedListener(object : TextWatcher {
-			override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
-
-			override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-				tilCount.error = null
-			}
-
-			override fun afterTextChanged(p0: Editable?) {}
-		})
 	}
 }
