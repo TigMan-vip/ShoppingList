@@ -3,36 +3,19 @@ package com.example.shoppinglist.Presentation
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.text.Editable
-import android.text.TextWatcher
-import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.ViewModelProvider
 import com.example.shoppinglist.Domain.ShopItem
 import com.example.shoppinglist.R
-import com.google.android.material.textfield.TextInputEditText
-import com.google.android.material.textfield.TextInputLayout
 
 class ShopItemActivity : AppCompatActivity() {
 
 	private var screenMode = MODE_UNKNOWN
 	private var shopItemID = ShopItem.UNDEFINDED_ID
-	private lateinit var viewModel: ShopItemViewModel
-
-	private lateinit var buttonSave: Button
-	private lateinit var tilName: TextInputLayout
-	private lateinit var tilCount: TextInputLayout
-	private lateinit var etName: TextInputEditText
-	private lateinit var etCount: TextInputEditText
 
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
 		setContentView(R.layout.activity_shop_item)
 		parseIntent()
-		viewModel = ViewModelProvider(this)[ShopItemViewModel::class.java]
-		initView()
-		addTextChangeListeners()
-		observeViewModel()
 		launchRightMode()
 	}
 
@@ -58,32 +41,15 @@ class ShopItemActivity : AppCompatActivity() {
 		}
 	}
 
-	private fun addTextChangeListeners() {
-		etName.addTextChangedListener(object : TextWatcher {
-			override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
-
-			override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-				viewModel.resetErrorInputName()
-			}
-
-			override fun afterTextChanged(p0: Editable?) {}
-		})
-		etCount.addTextChangedListener(object : TextWatcher {
-			override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
-
-			override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-				viewModel.resetErrorInputCount()
-			}
-
-			override fun afterTextChanged(p0: Editable?) {}
-		})
-	}
-
 	private fun launchRightMode() {
-		when (screenMode) {
-			MODE_ADD  -> launchAddMode()
-			MODE_EDIT -> launchEditMode()
+		val fragment = when (screenMode) {
+			MODE_ADD  -> ShopItemFragment.newInstanceAddItem()
+			MODE_EDIT -> ShopItemFragment.newInstanceEditItem(shopItemID)
+			else -> throw RuntimeException("Unknow screen mode $screenMode")
 		}
+		supportFragmentManager.beginTransaction()
+			.add(R.id.shop_item_fragment, fragment)
+			.commit()
 	}
 
 	private fun parseIntent() {
@@ -100,56 +66,6 @@ class ShopItemActivity : AppCompatActivity() {
 				throw RuntimeException("Param shop item id is absent")
 			}
 			shopItemID = intent.getIntExtra(EXTRA_SHOP_ITEM_ID, ShopItem.UNDEFINDED_ID)
-		}
-	}
-
-	private fun observeViewModel() {
-		viewModel.errorInputNameLiveData.observe(this) {
-			val message = if (it) {
-				"Ошибка ввода"
-			} else {
-				null
-			}
-			tilName.error = message
-		}
-		viewModel.errorInputCountLiveData.observe(this) {
-			val message = if (it) {
-				"Ошибка ввода"
-			} else {
-				null
-			}
-			tilCount.error = message
-		}
-		viewModel.shouldCloseScreen.observe(this) {
-			finish()
-		}
-	}
-
-	private fun initView() {
-		buttonSave = findViewById(R.id.btn_save)
-		tilName = findViewById(R.id.shop_item_name_input_layout)
-		tilCount = findViewById(R.id.shop_item_count_input_layout)
-		etName = findViewById(R.id.shop_item_name_edit_text)
-		etCount = findViewById(R.id.shop_item_count_edit_text)
-	}
-
-	private fun launchEditMode() {
-		viewModel.getShopItem(shopItemID)
-		var item = viewModel.shopItem.value
-		etName.setText(item?.name) ?: throw RuntimeException("Нет имени")
-		etCount.setText(item?.count.toString())
-		buttonSave.setOnClickListener {
-			val name = etName.text.toString()
-			val count = etCount.text.toString()
-			viewModel.editShopItem(name, count)
-		}
-	}
-
-	private fun launchAddMode() {
-		buttonSave.setOnClickListener {
-			val name = etName.text.toString()
-			val count = etCount.text.toString()
-			viewModel.addShopItem(name, count)
 		}
 	}
 }
