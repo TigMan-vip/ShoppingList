@@ -174,5 +174,4 @@ class ShopItemFragment : Fragment() {
 			viewModel.addShopItem(name, count)
 		}
 	}
-
 }

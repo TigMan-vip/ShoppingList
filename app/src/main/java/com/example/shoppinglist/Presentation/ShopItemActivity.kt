@@ -16,7 +16,9 @@ class ShopItemActivity : AppCompatActivity() {
 		super.onCreate(savedInstanceState)
 		setContentView(R.layout.activity_shop_item)
 		parseIntent()
-		launchRightMode()
+		if (savedInstanceState == null) {
+			launchRightMode()
+		}
 	}
 
 	companion object {
@@ -48,7 +50,7 @@ class ShopItemActivity : AppCompatActivity() {
 			else -> throw RuntimeException("Unknow screen mode $screenMode")
 		}
 		supportFragmentManager.beginTransaction()
-			.add(R.id.shop_item_fragment, fragment)
+			.replace(R.id.shop_item_fragment, fragment)
 			.commit()
 	}
 
