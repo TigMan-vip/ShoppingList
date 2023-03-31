@@ -2,4 +2,6 @@
 	<string name="app_name">ShoppingList</string>
 	<!-- TODO: Remove or change this placeholder text -->
 	<string name="hello_blank_fragment">Hello blank fragment</string>
+	<string name="error_input_name">Ошибка ввода имени</string>
+	<string name="error_input_count">Ошибка ввода количества</string>
 </resources>

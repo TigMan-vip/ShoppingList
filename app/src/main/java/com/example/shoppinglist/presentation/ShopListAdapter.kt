@@ -1,9 +1,13 @@
-package com.example.shoppinglist.Presentation
+package com.example.shoppinglist.presentation
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import com.example.shoppinglist.Domain.ShopItem
+import androidx.databinding.DataBindingUtil
+import androidx.databinding.ViewDataBinding
+import com.example.shoppinglist.domain.ShopItem
 import com.example.shoppinglist.R
+import com.example.shoppinglist.databinding.ItemShopDisabledBinding
+import com.example.shoppinglist.databinding.ItemShopEnabledBinding
 
 class ShopListAdapter : androidx.recyclerview.widget.ListAdapter<ShopItem, ShopListViewHolder>(ShopItemDiffCallback()) {
 
@@ -16,23 +20,37 @@ class ShopListAdapter : androidx.recyclerview.widget.ListAdapter<ShopItem, ShopL
 			VIEW_TYPE_DISABLED -> R.layout.item_shop_disabled
 			else               -> throw java.lang.RuntimeException("$viewType")
 		}
-		val view = LayoutInflater.from(parent.context).inflate(layout, parent, false)
+		val binding = DataBindingUtil.inflate<ViewDataBinding>(
+			LayoutInflater.from(parent.context),
+			layout,
+			parent,
+			false
+		)
 
-		return ShopListViewHolder(view)
+		return ShopListViewHolder(binding)
 	}
 
 	override fun onBindViewHolder(holder: ShopListViewHolder, position: Int) {
 		val shopItem = getItem(position)
-		holder.view.setOnLongClickListener {
+		val binding = holder.binding
+		binding.root.setOnLongClickListener {
 			onShopItemLongClickListener?.invoke(shopItem)
 			true
 		}
-		holder.view.setOnClickListener {
+		binding.root.setOnClickListener {
 			onShopItemClickListener?.invoke(shopItem)
-			true
 		}
-		holder.tvName.text = shopItem.name
-		holder.tvCount.text = shopItem.count.toString()
+		when (binding) {
+			is ItemShopEnabledBinding -> {
+				binding.shopItemName.text = shopItem.name
+				binding.shopItemCount.text = shopItem.count.toString()
+			}
+			is ItemShopDisabledBinding -> {
+				binding.shopItemName.text = shopItem.name
+				binding.shopItemCount.text = shopItem.count.toString()
+			}
+		}
+
 	}
 
 	override fun getItemViewType(position: Int): Int {

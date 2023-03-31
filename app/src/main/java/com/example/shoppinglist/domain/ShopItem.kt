@@ -1,12 +1,12 @@
-package com.example.shoppinglist.Domain
+package com.example.shoppinglist.domain
 
 data class ShopItem(
 	val name: String,
 	val count: Int,
 	val enabled: Boolean,
-	var id: Int = UNDEFINDED_ID
+	var id: Int = UNDEFENDED_ID
 ){
 	companion object {
-		const val UNDEFINDED_ID = -1
+		const val UNDEFENDED_ID = 0
 	}
 }

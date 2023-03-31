@@ -1,7 +1,7 @@
-package com.example.shoppinglist.Presentation
+package com.example.shoppinglist.presentation
 
 import androidx.recyclerview.widget.DiffUtil
-import com.example.shoppinglist.Domain.ShopItem
+import com.example.shoppinglist.domain.ShopItem
 
 class ShopItemDiffCallback: DiffUtil.ItemCallback<ShopItem>() {
 
